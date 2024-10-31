@@ -1,0 +1,385 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Production Manager Interview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+    <style>
+        @media print {
+            .no-print { display: none; }
+            .page-break { page-break-after: always; }
+            .answer-box { border: 1px solid #ddd; min-height: 100px; margin: 10px 0; }
+        }
+        .toc-link:hover { color: #4F46E5; }
+        .progress-bar { transition: width 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-50 font-['Inter']">
+    <nav class="fixed top-0 right-0 p-4 no-print z-50">
+        <div class="flex gap-2">
+            <button onclick="saveProgress()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 shadow-lg">
+                <i class="fas fa-save mr-2"></i>Save
+            </button>
+            <button onclick="exportToPDF()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 shadow-lg">
+                <i class="fas fa-file-pdf mr-2"></i>Export PDF
+            </button>
+          <button id="recordButton" onclick="toggleRecording()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 shadow-lg">
+    <i class="fas fa-microphone mr-2"></i><span id="recordText">Start Recording</span>
+</button>
+        </div>
+    </nav>
+
+    <div class="max-w-5xl mx-auto p-4 mt-16">
+        <!-- Header -->
+        <div class="bg-white p-6 rounded-lg shadow-lg mb-6 no-print">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Game Production Manager Interview</h1>
+                <div class="flex gap-4 items-center">
+                    <div class="text-sm text-gray-600">
+                        Progress: <span id="progressCount">0/12</span>
+                    </div>
+                    <div class="w-32 h-2 bg-gray-200 rounded-full">
+                        <div id="progressBar" class="h-full bg-green-500 rounded-full progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Interviewer Name</label>
+                    <input type="text" id="interviewer" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Date</label>
+                    <input type="date" id="interviewDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                </div>
+            </div>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="bg-white p-6 rounded-lg shadow-lg mb-6 no-print">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Table of Contents</h2>
+            <div id="tableOfContents" class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <!-- Will be populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Interview Content -->
+        <div id="interviewContent" class="space-y-8">
+            <!-- Will be populated dynamically -->
+        </div>
+    </div>
+  
+  <script>
+const topics = [
+    {
+        title: "Understanding the Production Manager Role",
+        mainQuestion: "From what I understand, a Production Manager oversees the entire production pipeline, balancing technical, creative, and timeline demands. Could you share how this plays out in your daily work at Gameloft?",
+        followUps: [
+            "How does Production Management in gaming differ from other sectors with similar roles?",
+            "Are there specific challenges you face that are unique to the gaming industry?"
+        ]
+    },
+    {
+        title: "Skills & Requirements",
+        mainQuestion: "I've read that Production Managers in gaming need a mix of technical expertise and team leadership skills. Which do you think are most critical in your experience?",
+        followUps: [
+            "How do you prioritize technical versus management skills in your role?",
+            "Are there any specialized tools or platforms that would help someone prepare for production tasks?"
+        ]
+    },
+    {
+        title: "Project Lifecycle and Process Optimization",
+        mainQuestion: "From what I know, game production has distinct phases like concept, design, development, and testing. Which phases are typically the most challenging, and how do you tackle these at Gameloft?",
+        followUps: [
+            "How do you ensure each phase stays on schedule, especially with creative constraints?",
+            "What's your approach for maintaining the production flow when unexpected issues arise?"
+        ]
+    },
+    {
+        title: "Efficiency Improvement",
+        mainQuestion: "I've come across methodologies like Agile and Lean that are used to streamline production. How do you approach optimizing workflows at Gameloft, and do these methodologies play a role?",
+        followUps: [
+            "How do you identify bottlenecks or inefficiencies within the production process?",
+            "Could you share a successful example of process optimization that made a noticeable impact?"
+        ]
+    },
+    {
+        title: "Team Coordination",
+        mainQuestion: "I imagine coordinating between departments like art, development, and QA must be challenging. What approaches have you found effective for keeping everyone aligned on goals?",
+        followUps: [
+            "How do you manage different work styles and priorities between these teams?",
+            "Are there particular strategies or techniques you use to resolve conflicts between creative and technical teams?"
+        ]
+    },
+    {
+        title: "Quality and Consistency",
+        mainQuestion: "Maintaining quality seems crucial, especially across multiple teams. What standards or KPIs do you rely on to ensure quality and consistency in production?",
+        followUps: [
+            "How do you balance quality control with tight deadlines?",
+            "What's your approach for addressing quality issues when they arise close to a project's final stages?"
+        ]
+    },
+    {
+        title: "Skill Assessment",
+        mainQuestion: "With a foundation in soft skills and some technical experience, I'm curious about what areas I should focus on to prepare for a Production Manager role.",
+        followUps: [
+            "Are there specific technical skills you think would make my profile more competitive?",
+            "How can I leverage my communication and team coordination skills to add value in production management?"
+        ]
+    },
+    {
+        title: "Career Path Guidance",
+        mainQuestion: "I understand that gaining varied experience is valuable for a management role. Based on your journey, what initial roles or projects would you recommend for someone looking to move into production or project management in gaming?",
+        followUps: [
+            "Would starting in a more technical role help to gain insight into production workflows?",
+            "Are there particular certifications (like PMP, Agile) that are valuable at Gameloft?"
+        ]
+    },
+    {
+        title: "Certifications & Training",
+        mainQuestion: "I've seen mixed advice about the value of certifications like PMP or Scrum. How relevant are they to a role in Production Management at Gameloft?",
+        followUps: [
+            "Are there specific courses or training resources you would recommend?",
+            "How does Gameloft view certifications versus hands-on experience when hiring?"
+        ]
+    },
+    {
+        title: "Technical vs. Non-Technical Balance",
+        mainQuestion: "With my stronger soft skills, I'd like to understand how best to balance these with technical requirements in Production Management.",
+        followUps: [
+            "Should I focus on a specific technical area to support my understanding of production tasks?",
+            "How can I apply project management concepts effectively without deep technical expertise?"
+        ]
+    },
+    {
+        title: "Future of Production Management in Gaming",
+        mainQuestion: "I'm aware that gaming is a rapidly evolving industry. How do you see the role of Production Management changing in the next few years, and which skills will be most valuable?",
+        followUps: [
+            "Are there emerging trends or technologies that you think will impact production management?",
+            "What skills should someone new to the industry focus on to stay competitive?"
+        ]
+    },
+    {
+        title: "Personalized Actionable Advice",
+        mainQuestion: "Based on your experience, what practical steps should I take now to build toward a Production Manager role?",
+        followUps: [
+            "Are there small projects or practices I can start independently to develop relevant skills?",
+            "How can I improve my ability to handle complex, cross-functional projects while still in school?"
+        ]
+    }
+];
+
+
+function createTableOfContents() {
+    const toc = document.getElementById('tableOfContents');
+    topics.forEach((topic, index) => {
+        const link = document.createElement('a');
+        link.href = `#topic-${index}`;
+        link.className = 'toc-link text-gray-600 hover:text-indigo-600 transition-colors duration-200';
+        link.innerHTML = `${index + 1}. ${topic.title}`;
+        toc.appendChild(link);
+    });
+}
+
+function createTopicElement(topic, index) {
+    const topicDiv = document.createElement('div');
+    topicDiv.id = `topic-${index}`;
+    topicDiv.className = 'bg-white p-6 rounded-lg shadow-lg';
+    
+    topicDiv.innerHTML = `
+        <h2 class="text-xl font-bold text-gray-800 mb-6">${index + 1}. ${topic.title}</h2>
+        
+        <div class="mb-8">
+            <div class="font-medium text-gray-700 mb-2">Main Question:</div>
+            <p class="mb-4 text-gray-800">${topic.mainQuestion}</p>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Main Answer</label>
+                <textarea 
+                    class="w-full p-3 border rounded-md min-h-[100px]"
+                    placeholder="Enter your answer here..."
+                    onchange="updateProgress()"
+                    data-question-type="main"
+                    data-topic-index="${index}"
+                ></textarea>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            ${topic.followUps.map((followUp, fIndex) => `
+                <div class="ml-6">
+                    <div class="font-medium text-gray-700 mb-2">Follow-up ${index + 1}.${fIndex + 1}:</div>
+                    <p class="mb-3 text-gray-800">${followUp}</p>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <textarea 
+                            class="w-full p-3 border rounded-md min-h-[80px]"
+                            placeholder="Enter your answer here..."
+                            onchange="updateProgress()"
+                            data-question-type="followup"
+                            data-topic-index="${index}"
+                            data-followup-index="${fIndex}"
+                        ></textarea>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    return topicDiv;
+}
+
+function updateProgress() {
+    const totalTopics = topics.length;
+    const answeredTopics = document.querySelectorAll('textarea').length;
+    const filledAnswers = Array.from(document.querySelectorAll('textarea')).filter(ta => ta.value.trim()).length;
+    
+    const progress = Math.round((filledAnswers / answeredTopics) * 100);
+    document.getElementById('progressBar').style.width = `${progress}%`;
+    document.getElementById('progressCount').textContent = `${filledAnswers}/${answeredTopics}`;
+    
+    autoSave();
+}
+
+
+function initializeContent() {
+    createTableOfContents();
+    const container = document.getElementById('interviewContent');
+    topics.forEach((topic, index) => {
+        container.appendChild(createTopicElement(topic, index));
+    });
+    loadSavedProgress();
+}
+
+function autoSave() {
+    const answers = {};
+    document.querySelectorAll('textarea').forEach(textarea => {
+        const topicIndex = textarea.dataset.topicIndex;
+        const questionType = textarea.dataset.questionType;
+        const followupIndex = textarea.dataset.followupIndex;
+        
+        if (!answers[topicIndex]) answers[topicIndex] = { main: '', followups: {} };
+        
+        if (questionType === 'main') {
+            answers[topicIndex].main = textarea.value;
+        } else {
+            answers[topicIndex].followups[followupIndex] = textarea.value;
+        }
+    });
+    
+    localStorage.setItem('interviewAnswers', JSON.stringify(answers));
+}
+
+function loadSavedProgress() {
+    const savedAnswers = JSON.parse(localStorage.getItem('interviewAnswers') || '{}');
+    
+    Object.entries(savedAnswers).forEach(([topicIndex, answers]) => {
+        const mainTextarea = document.querySelector(`textarea[data-topic-index="${topicIndex}"][data-question-type="main"]`);
+        if (mainTextarea) mainTextarea.value = answers.main;
+        
+        Object.entries(answers.followups || {}).forEach(([followupIndex, value]) => {
+            const followupTextarea = document.querySelector(`textarea[data-topic-index="${topicIndex}"][data-followup-index="${followupIndex}"]`);
+            if (followupTextarea) followupTextarea.value = value;
+        });
+    });
+    
+    updateProgress();
+}
+
+function saveProgress() {
+    autoSave();
+    alert('Progress saved successfully!');
+}
+
+function exportToPDF() {
+    const element = document.getElementById('interviewContent');
+    const opt = {
+        margin: 1,
+        filename: 'game-production-manager-interview.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+}
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', initializeContent);
+</script>
+  
+  <script>
+let mediaRecorder;
+let audioChunks = [];
+let isRecording = false;
+
+async function setupRecording() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg-3' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            
+            // Create download link
+            const downloadLink = document.createElement('a');
+            downloadLink.href = audioUrl;
+            downloadLink.download = `interview-recording-${new Date().toISOString()}.mp3`;
+            downloadLink.click();
+            
+            // Reset chunks for next recording
+            audioChunks = [];
+        };
+    } catch (err) {
+        console.error('Error accessing microphone:', err);
+        alert('Unable to access microphone. Please ensure you have given permission to use the microphone.');
+    }
+}
+
+function toggleRecording() {
+    const button = document.getElementById('recordButton');
+    const recordText = document.getElementById('recordText');
+
+    if (!mediaRecorder) {
+        setupRecording().then(() => {
+            startRecording();
+        });
+    } else {
+        if (isRecording) {
+            // Stop recording
+            mediaRecorder.stop();
+            button.classList.remove('bg-red-600');
+            button.classList.add('bg-red-500');
+            recordText.textContent = 'Start Recording';
+            isRecording = false;
+        } else {
+            startRecording();
+        }
+    }
+}
+
+function startRecording() {
+    const button = document.getElementById('recordButton');
+    const recordText = document.getElementById('recordText');
+    
+    mediaRecorder.start();
+    button.classList.remove('bg-red-500');
+    button.classList.add('bg-red-600');
+    recordText.textContent = 'Stop Recording';
+    isRecording = true;
+}
+
+// Initialize recording setup when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    setupRecording();
+});
+</script>
+</body>
+</html>
